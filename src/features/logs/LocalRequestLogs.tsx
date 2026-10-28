@@ -59,15 +59,20 @@ export function LocalRequestLogs() {
     if (connection !== 'connected') return;
     setLoading(true);
     setError('');
-    Promise.all([
-      logsApi.fetchLocalRequestLogs({ ...filters, cursor: cursor || undefined }),
-      logsApi.fetchLocalLogStatus(),
-    ])
-      .then(([response, nextStatus]) => {
+    void logsApi
+      .fetchLocalLogStatus()
+      .then((nextStatus) => {
+        if (generation.current === current) setStatus(nextStatus);
+      })
+      .catch((err: unknown) => {
+        if (generation.current === current) setError(getErrorMessage(err));
+      });
+    logsApi
+      .fetchLocalRequestLogs({ ...filters, cursor: cursor || undefined })
+      .then((response) => {
         if (generation.current !== current) return;
         setFiles(response.files);
         setNextCursor(response.nextCursor);
-        setStatus(nextStatus);
       })
       .catch((err: unknown) => {
         if (generation.current === current) setError(getErrorMessage(err));
@@ -184,10 +189,11 @@ export function LocalRequestLogs() {
       <div className={styles.errorBody}>
         {status && (
           <div className="hint">
-            {t('logs.local_usage', {
-              used: (status.usedBytes / 1024 ** 3).toFixed(2),
-              limit: (status.limitBytes / 1024 ** 3).toFixed(2),
-            })}
+            {status.usageAvailable &&
+              t('logs.local_usage', {
+                used: (status.usedBytes / 1024 ** 3).toFixed(2),
+                limit: (status.limitBytes / 1024 ** 3).toFixed(2),
+              })}
             {status.diskStatsAvailable ? (
               <div>
                 {t('logs.local_disk_usage', {

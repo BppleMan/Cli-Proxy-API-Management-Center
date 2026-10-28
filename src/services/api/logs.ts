@@ -38,6 +38,7 @@ export interface LocalRequestLog extends ErrorLogFile {
 }
 
 export interface LocalLogStatus {
+  usageAvailable: boolean;
   usedBytes: number;
   limitBytes: number;
   captureFailures: number;
@@ -234,6 +235,7 @@ export const logsApi = {
     const number = (value: unknown) => (typeof value === 'number' ? value : 0);
     return {
       usedBytes: number(data.used_bytes),
+      usageAvailable: data.usage_available !== false,
       limitBytes: number(data.limit_bytes),
       captureFailures: number(data.capture_failures),
       droppedChunks: number(data.dropped_chunks),
