@@ -980,6 +980,9 @@
     "no_requests": "No requests"
   },
   "logs": {
+    "local_disk_usage": "Log disk: {{available}} GiB free of {{total}} GiB",
+    "local_disk_unavailable": "Log disk capacity is unavailable.",
+    "local_disk_low": "Log disk has less than 10% free space.",
     "local_clear_confirm": "Clear application and completed request logs? Active requests continue. This cannot be undone.",
     "local_media_preview": "Preview media",
     "local_media_download": "Download media",

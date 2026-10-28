@@ -936,6 +936,9 @@
     "no_requests": "Không có yêu cầu"
   },
   "logs": {
+    "local_disk_usage": "Đĩa nhật ký còn {{available}} GiB / {{total}} GiB",
+    "local_disk_unavailable": "Không đọc được dung lượng đĩa nhật ký.",
+    "local_disk_low": "Đĩa nhật ký còn dưới 10% dung lượng.",
     "local_clear_confirm": "Xóa nhật ký ứng dụng và các yêu cầu đã hoàn thành? Yêu cầu đang chạy vẫn tiếp tục. Không thể hoàn tác.",
     "local_media_preview": "Xem phương tiện",
     "local_media_download": "Tải phương tiện",

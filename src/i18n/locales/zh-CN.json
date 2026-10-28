@@ -979,6 +979,9 @@
     "no_requests": "无请求"
   },
   "logs": {
+    "local_disk_usage": "日志盘可用：{{available}} GiB / 总计 {{total}} GiB",
+    "local_disk_unavailable": "无法读取日志盘容量。",
+    "local_disk_low": "日志盘可用空间不足 10%。",
     "local_clear_confirm": "清空应用日志和已完成的请求日志？进行中的请求会继续，此操作不可撤销。",
     "local_media_preview": "预览媒体",
     "local_media_download": "下载媒体",

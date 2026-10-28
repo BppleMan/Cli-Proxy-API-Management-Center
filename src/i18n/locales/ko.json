@@ -980,6 +980,9 @@
     "no_requests": "요청 없음"
   },
   "logs": {
+    "local_disk_usage": "로그 디스크 여유: {{available}} GiB / 전체 {{total}} GiB",
+    "local_disk_unavailable": "로그 디스크 용량을 읽을 수 없습니다.",
+    "local_disk_low": "로그 디스크 여유 공간이 10% 미만입니다.",
     "local_clear_confirm": "앱 로그와 완료된 요청 로그를 삭제하시겠습니까? 진행 중인 요청은 계속됩니다. 되돌릴 수 없습니다.",
     "local_media_preview": "미디어 미리보기",
     "local_media_download": "미디어 다운로드",

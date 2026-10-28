@@ -188,6 +188,21 @@ export function LocalRequestLogs() {
               used: (status.usedBytes / 1024 ** 3).toFixed(2),
               limit: (status.limitBytes / 1024 ** 3).toFixed(2),
             })}
+            {status.diskStatsAvailable ? (
+              <div>
+                {t('logs.local_disk_usage', {
+                  available: (status.diskAvailableBytes / 1024 ** 3).toFixed(2),
+                  total: (status.diskTotalBytes / 1024 ** 3).toFixed(2),
+                })}
+              </div>
+            ) : (
+              <div className="status-badge warning">{t('logs.local_disk_unavailable')}</div>
+            )}
+            {status.diskStatsAvailable &&
+              status.diskTotalBytes > 0 &&
+              status.diskAvailableBytes < status.diskTotalBytes * 0.1 && (
+                <div className="status-badge warning">{t('logs.local_disk_low')}</div>
+              )}
             {status.limitBytes > 0 && status.usedBytes >= status.limitBytes * 0.9 && (
               <div className="status-badge warning">{t('logs.local_capacity_warning')}</div>
             )}

@@ -47,6 +47,9 @@ describe('logs domain response normalization', () => {
         capture_failures: 2,
         dropped_chunks: 1,
         last_failure: 123,
+        disk_total_bytes: 1024,
+        disk_available_bytes: 100,
+        disk_stats_available: true,
       });
       expect(await logsApi.fetchLocalLogStatus()).toEqual({
         usedBytes: 10,
@@ -54,6 +57,9 @@ describe('logs domain response normalization', () => {
         captureFailures: 2,
         droppedChunks: 1,
         lastFailure: 123,
+        diskTotalBytes: 1024,
+        diskAvailableBytes: 100,
+        diskStatsAvailable: true,
       });
     } finally {
       get.mockRestore();

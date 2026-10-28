@@ -1007,6 +1007,9 @@
     "no_requests": "無請求"
   },
   "logs": {
+    "local_disk_usage": "日誌磁碟可用：{{available}} GiB / 總計 {{total}} GiB",
+    "local_disk_unavailable": "無法讀取日誌磁碟容量。",
+    "local_disk_low": "日誌磁碟可用空間不足 10%。",
     "local_clear_confirm": "清除應用程式日誌與已完成的請求日誌？進行中的請求會繼續，此操作無法復原。",
     "local_media_preview": "預覽媒體",
     "local_media_download": "下載媒體",

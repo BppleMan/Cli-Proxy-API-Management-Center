@@ -43,6 +43,9 @@ export interface LocalLogStatus {
   captureFailures: number;
   droppedChunks: number;
   lastFailure: number;
+  diskTotalBytes: number;
+  diskAvailableBytes: number;
+  diskStatsAvailable: boolean;
 }
 
 export interface LocalLogPage {
@@ -235,6 +238,9 @@ export const logsApi = {
       captureFailures: number(data.capture_failures),
       droppedChunks: number(data.dropped_chunks),
       lastFailure: number(data.last_failure),
+      diskTotalBytes: number(data.disk_total_bytes),
+      diskAvailableBytes: number(data.disk_available_bytes),
+      diskStatsAvailable: data.disk_stats_available === true,
     };
   },
 
