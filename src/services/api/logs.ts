@@ -31,6 +31,28 @@ export interface ErrorLogsResponse {
   files: ErrorLogFile[];
 }
 
+export interface LocalRequestLog extends ErrorLogFile {
+  requestId: string;
+  size: number;
+  modified: number;
+}
+
+export interface LocalLogStatus {
+  usedBytes: number;
+  limitBytes: number;
+  captureFailures: number;
+  droppedChunks: number;
+  lastFailure: number;
+}
+
+export interface LocalLogPage {
+  text: string;
+  offset: number;
+  nextOffset: number;
+  size: number;
+  media: Array<{ offset: number; mime: string }>;
+}
+
 const stringValue = (value: unknown): string => (typeof value === 'string' ? value.trim() : '');
 
 const booleanValue = (value: unknown): boolean =>
@@ -157,4 +179,71 @@ export const logsApi = {
 
   downloadRequestLogById: (id: string, options: LogsRequestOptions = {}) =>
     downloadLog(`/observability/logs/requests/${encodeURIComponent(id)}`, options),
+
+  async fetchLocalRequestLogs(
+    params: { q?: string; after?: number; before?: number; cursor?: string } = {}
+  ) {
+    const data = await apiClient.get('/observability/logs/local-requests', { params });
+    if (!isRecord(data) || !Array.isArray(data.files)) return { files: [], nextCursor: '' };
+    return {
+      files: data.files.flatMap((item): LocalRequestLog[] => {
+        if (!isRecord(item) || typeof item.name !== 'string') return [];
+        return [
+          {
+            name: item.name,
+            requestId: stringValue(item.request_id),
+            size: typeof item.size === 'number' ? item.size : 0,
+            modified: unixSecondsFromValue(item.modified),
+          },
+        ];
+      }),
+      nextCursor: stringValue(data.next_cursor),
+    };
+  },
+
+  async fetchLocalLogPage(name: string, offset = 0): Promise<LocalLogPage> {
+    const data = await apiClient.get(
+      `/observability/logs/local-requests/${encodeURIComponent(name)}/preview`,
+      {
+        params: { offset },
+      }
+    );
+    if (!isRecord(data) || typeof data.data !== 'string') throw new Error('Invalid log page');
+    const bytes = Uint8Array.from(atob(data.data), (character) => character.charCodeAt(0));
+    return {
+      text: new TextDecoder().decode(bytes),
+      offset: typeof data.offset === 'number' ? data.offset : 0,
+      nextOffset: typeof data.next_offset === 'number' ? data.next_offset : 0,
+      size: typeof data.size === 'number' ? data.size : 0,
+      media: Array.isArray(data.media)
+        ? data.media.flatMap((item) =>
+            isRecord(item) && typeof item.offset === 'number' && typeof item.mime === 'string'
+              ? [{ offset: item.offset, mime: item.mime }]
+              : []
+          )
+        : [],
+    };
+  },
+
+  async fetchLocalLogStatus(): Promise<LocalLogStatus> {
+    const data = await apiClient.get('/observability/logs/local-status');
+    if (!isRecord(data)) throw new Error('Invalid log status');
+    const number = (value: unknown) => (typeof value === 'number' ? value : 0);
+    return {
+      usedBytes: number(data.used_bytes),
+      limitBytes: number(data.limit_bytes),
+      captureFailures: number(data.capture_failures),
+      droppedChunks: number(data.dropped_chunks),
+      lastFailure: number(data.last_failure),
+    };
+  },
+
+  downloadLocalRequestLog: (name: string, options: LogsRequestOptions = {}) =>
+    downloadLog(`/observability/logs/local-requests/${encodeURIComponent(name)}/download`, options),
+
+  downloadLocalLogMedia: (name: string, offset: number, options: LogsRequestOptions = {}) =>
+    downloadLog(
+      `/observability/logs/local-requests/${encodeURIComponent(name)}/media?offset=${offset}`,
+      options
+    ),
 };

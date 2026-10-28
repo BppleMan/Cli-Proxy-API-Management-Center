@@ -6,6 +6,60 @@ import type { ApiError } from '@/types';
 import { LOGS_TIMEOUT_MS } from '@/utils/constants';
 
 describe('logs domain response normalization', () => {
+  test('reads bounded local pages and preserves Unicode and media references', async () => {
+    const encoded = btoa(String.fromCharCode(...new TextEncoder().encode('角色 log')));
+    const get = spyOn(apiClient, 'get').mockResolvedValue({
+      data: encoded,
+      offset: 65536,
+      next_offset: 65546,
+      size: 3000000,
+      media: [{ offset: 65540, mime: 'image/png' }],
+    });
+    try {
+      expect(await logsApi.fetchLocalLogPage('request.log', 65536)).toEqual({
+        text: '角色 log',
+        offset: 65536,
+        nextOffset: 65546,
+        size: 3000000,
+        media: [{ offset: 65540, mime: 'image/png' }],
+      });
+      expect(get).toHaveBeenCalledWith('/observability/logs/local-requests/request.log/preview', {
+        params: { offset: 65536 },
+      });
+    } finally {
+      get.mockRestore();
+    }
+  });
+
+  test('normalizes local list and storage health', async () => {
+    const get = spyOn(apiClient, 'get').mockResolvedValue({
+      files: [{ name: 'request.log', request_id: 'request-1', size: 3000000, modified: 123 }],
+      next_cursor: 'cursor',
+    });
+    try {
+      expect(await logsApi.fetchLocalRequestLogs({ q: 'request-1' })).toEqual({
+        files: [{ name: 'request.log', requestId: 'request-1', size: 3000000, modified: 123 }],
+        nextCursor: 'cursor',
+      });
+      get.mockResolvedValue({
+        used_bytes: 10,
+        limit_bytes: 100,
+        capture_failures: 2,
+        dropped_chunks: 1,
+        last_failure: 123,
+      });
+      expect(await logsApi.fetchLocalLogStatus()).toEqual({
+        usedBytes: 10,
+        limitBytes: 100,
+        captureFailures: 2,
+        droppedChunks: 1,
+        lastFailure: 123,
+      });
+    } finally {
+      get.mockRestore();
+    }
+  });
+
   test('normalizes lines and timestamps without altering opaque cursors', async () => {
     const get = spyOn(apiClient, 'get').mockResolvedValue({
       lines: [' first ', null, 2, ''],

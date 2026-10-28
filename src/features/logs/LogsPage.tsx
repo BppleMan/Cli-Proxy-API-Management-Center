@@ -46,11 +46,12 @@ import { errorLogViewerReducer } from './model/errorLogViewer';
 import { shouldExitLogFullscreen } from './model/logFullscreen';
 import { useLogFilters } from './hooks/useLogFilters';
 import { isNearBottom, useLogScroller } from './hooks/useLogScroller';
+import { LocalRequestLogs } from './LocalRequestLogs';
 import styles from './LogsPage.module.scss';
 
 const INITIAL_DISPLAY_LINES = INITIAL_VISIBLE_LINES;
 
-type TabType = 'logs' | 'errors';
+type TabType = 'logs' | 'errors' | 'local';
 
 export function LogsPage() {
   const { t } = useTranslation();
@@ -421,10 +422,22 @@ export function LogsPage() {
           >
             {t('logs.error_logs_modal_title')}
           </button>
+          <button
+            type="button"
+            className={`${styles.tabItem} ${activeTab === 'local' ? styles.tabActive : ''}`}
+            aria-pressed={activeTab === 'local'}
+            onClick={() => {
+              setFullscreenLogs(false);
+              setActiveTab('local');
+            }}
+          >
+            {t('logs.local_title')}
+          </button>
         </div>
       </header>
 
       <div className={styles.content}>
+        {activeTab === 'local' && <LocalRequestLogs key={`${apiBase}:${managementKey}`} />}
         {activeTab === 'logs' && (
           <Card
             className={[styles.logCard, fullscreenLogs ? styles.logCardFullscreen : '']
